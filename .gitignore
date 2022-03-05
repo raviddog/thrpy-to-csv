@@ -1,0 +1,5 @@
+/.vscode
+/build
+/build-wsl
+*.csv
+strings.json
