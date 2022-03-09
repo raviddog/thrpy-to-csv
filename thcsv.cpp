@@ -429,3 +429,174 @@ std::string th08csv(unsigned char *buffer, int flength) {
 
     return out;
 }
+
+std::string th09csv(unsigned char *buffer, int flength) {
+    std::string out = "th09,";
+
+    if(flength < sizeof(th09_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th09decode1(buf, flength);
+	buffer = *buf;
+
+    th09_replay_header_t *header = (th09_replay_header_t*)malloc(sizeof(th09_replay_header_t));
+	memcpy(header, buffer, sizeof(th09_replay_header_t));
+	for(int i = 0; i < 40; i++) {
+		if(header->stage_offsets[i] != 0x00) {
+			header->stage_offsets[i] -= 192;
+		}
+	}
+
+    flength = th09decode2(buf, flength);
+	buffer = *buf;
+
+    if(flength < sizeof(th09_replay_t)) {
+		free(header);
+		return "\n";
+	}
+    th09_replay_t *rep = (th09_replay_t*)buffer;
+
+    out += rep->name;
+    out += ",";
+    
+    
+    char score[16];
+    // sprintf(score, "%u\0", (uint64_t)rep->score * 10);
+    // out += score;
+    // out += ",";
+
+    th09_replay_stage_t splits[20];
+    for(int i = 0; i < 20; i++) {
+		if(header->stage_offsets[i] != 0x00 && header->stage_offsets[i] + sizeof(th09_replay_stage_t) < flength) {
+			th09_replay_stage_t *stage = (th09_replay_stage_t*)&buffer[header->stage_offsets[i]];
+            memcpy(splits + i, stage, sizeof(th09_replay_stage_t));
+        }
+    }
+
+    
+    int shot;
+    //  get shot from one of the stages
+    if(header->stage_offsets[9] != 0) {
+        //  extra
+        shot = splits[9].shot;
+    } else {
+        //  regular
+        shot = splits[0].shot;
+    }
+
+    switch(shot) {
+        case 0:
+            out += "Reimu,";
+            break;
+        case 1:
+            out += "Marisa,";
+            break;
+        case 2:
+            out += "Sakuya,";
+            break;
+        case 3:
+            out += "Youmu,";
+            break;
+        case 4:
+            out += "Reisen,";
+            break;
+        case 5:
+            out += "Cirno,";
+            break;
+        case 6:
+            out += "Lyrica,";
+            break;
+        case 7:
+            out += "Mystia,";
+            break;
+        case 8:
+            out += "Tewi,";
+            break;
+        case 9:
+            out += "Aya,";
+            break;
+        case 10:
+            out += "Medicine,";
+            break;
+        case 11:
+            out += "Yuuka,";
+            break;
+        case 12:
+            out += "Komachi,";
+            break;
+        case 13:
+            out += "Eiki,";
+            break;
+        case 14:
+            out += "Merlin,";
+            break;
+        case 15:
+            out += "Lunasa,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    switch(rep->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    if(header->stage_offsets[9] != 0) {
+        //  extra
+        sprintf(score, "%u\0", (uint64_t)splits[9].score * 10);
+        out += score;
+        out += ",";
+
+        //  score 1-9
+        out += ",,,,,,,,,";
+    } else {
+        //  regular
+        int i;
+        for(i=2;i < 8;i++) {
+            if(splits[i].score == 0) break;
+        }
+        sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+        out += score;
+        out += ",";
+
+        for(i = 0; i < 9; i++) {
+            if(header->stage_offsets[i] != 0x00) {
+                sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+                out += score;
+            }
+            out += ",";
+        }
+    }
+
+    out += ",,,,,,,";   //  piv 1-7
+    out += ",,,,,,,";   //  graze 1-7
+    out += ",,,,,,,";   //  other 1-7
+
+
+    out += "\n";
+    free(header);
+    free(buffer);
+
+    return out;
+}

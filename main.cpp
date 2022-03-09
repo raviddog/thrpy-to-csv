@@ -58,16 +58,16 @@ int main(int args, char *argv[]) {
                 txt = th08csv(buffer, flength);
                 break;
             case 0x50523954: 	//"T9RP"
-                // out = th09csv(buf, flength);
+                txt = th09csv(buffer, flength);
                 break;
             case 0x72303174:  //"t10r"
-                // out = th10csv(buf, flength);
+                // txt = th10csv(buffer, flength);
                 break;
             case 0x72313174:  //"t11r"
-                // out = th11csv(buf, flength);
+                // txt = th11csv(buffer, flength);
                 break;
             case 0x72323174:  //"t12r"
-                // out = th12csv(buf, flength);
+                // txt = th12csv(buffer, flength);
                 break;
             case 0x72383231:  //"128r"
                 break;
@@ -78,23 +78,23 @@ int main(int args, char *argv[]) {
                         if(flength > header->userdata_offset + 0x10) {
                             const char id = buffer[header->userdata_offset + 0x10];
                             if(id == 144) {
-                                // out = th13csv(buf, flength);
+                                // txt = th13csv(buffer, flength);
                             } else {
-                                // out = th14csv(buf, flength);
+                                // txt = th14csv(buffer, flength);
                             }
                         } else {
-                            // out = nullptr;
+                            // txt = nullptr;
                         }
                     } else {
-                        // out = nullptr;
+                        // txt = nullptr;
                     }
                 }
                 break;
             case 0x72353174: 	//"t15r"
-                // out = th15csv(buf, flength);
+                // txt = th15csv(buffer, flength);
                 break;
             case 0x72363174: 	//"t16r"
-                // out = th16csv(buf, flength);
+                // txt = th16csv(buffer, flength);
                 break;
             case 0x72373174: 	//"t17r"
                 break;
