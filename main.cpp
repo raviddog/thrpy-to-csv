@@ -61,7 +61,7 @@ int main(int args, char *argv[]) {
                 txt = th09csv(buffer, flength);
                 break;
             case 0x72303174:  //"t10r"
-                // txt = th10csv(buffer, flength);
+                txt = th10csv(buffer, flength);
                 break;
             case 0x72313174:  //"t11r"
                 // txt = th11csv(buffer, flength);

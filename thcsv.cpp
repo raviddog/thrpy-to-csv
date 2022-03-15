@@ -600,3 +600,104 @@ std::string th09csv(unsigned char *buffer, int flength) {
 
     return out;
 }
+
+std::string th10csv(unsigned char *buffer, int flength) {
+    std::string out = "th10,";
+
+    if(flength < sizeof(th10_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th10decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th10_replay_t)) return "\n";
+    th10_replay_t *replay = (th10_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "ReimuA,";
+            break;
+        case 1:
+            out += "ReimuB,";
+            break;
+        case 2:
+            out += "ReimuC,";
+            break;
+        case 3:
+            out += "MarisaA,";
+            break;
+        case 4:
+            out += "MarisaB,";
+            break;
+        case 5:
+            out += "MarisaC,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0x64;
+    th10_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stagecount; i++) {
+        if(next_stage_offset + sizeof(th10_replay_stage_t) < flength) {
+            th10_replay_stage_t *stage = (th10_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th10_replay_stage_t));
+            next_stage_offset += stage->next_stage_offset + 0x1c4;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  graze 1-7
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+
+}
