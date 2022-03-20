@@ -701,3 +701,648 @@ std::string th10csv(unsigned char *buffer, int flength) {
     return out;
 
 }
+
+std::string th11csv(unsigned char *buffer, int flength) {
+    std::string out = "th11,";
+
+    if(flength < sizeof(th11_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th11decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th11_replay_t)) return "\n";
+    th11_replay_t *replay = (th11_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "ReimuA,";
+            break;
+        case 1:
+            out += "ReimuB,";
+            break;
+        case 2:
+            out += "ReimuC,";
+            break;
+        case 3:
+            out += "MarisaA,";
+            break;
+        case 4:
+            out += "MarisaB,";
+            break;
+        case 5:
+            out += "MarisaC,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0x70;
+    th11_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stagecount; i++) {
+        if(next_stage_offset + sizeof(th11_replay_stage_t) < flength) {
+            th11_replay_stage_t *stage = (th11_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th11_replay_stage_t));
+            next_stage_offset += stage->next_stage_offset + 0x90;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", splits[i].graze);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+}
+
+std::string th12csv(unsigned char *buffer, int flength) {
+    std::string out = "th12,";
+
+    if(flength < sizeof(th12_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th12decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th12_replay_t)) return "\n";
+    th12_replay_t *replay = (th12_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "ReimuA,";
+            break;
+        case 1:
+            out += "ReimuB,";
+            break;
+        case 2:
+            out += "MarisaA,";
+            break;
+        case 3:
+            out += "MarisaB,";
+            break;
+        case 4:
+            out += "SanaeA,";
+            break;
+        case 5:
+            out += "SanaeB,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0x70;
+    th12_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stagecount; i++) {
+        if(next_stage_offset + sizeof(th12_replay_stage_t) < flength) {
+            th12_replay_stage_t *stage = (th12_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th12_replay_stage_t));
+            next_stage_offset += stage->next_stage_offset + 0xa0;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stagecount) {
+            sprintf(score, "%u\0", splits[i].graze);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+}
+
+std::string th13csv(unsigned char *buffer, int flength) {
+        std::string out = "th13,";
+
+    if(flength < sizeof(th13_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th13decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th13_replay_t)) return "\n";
+    th13_replay_t *replay = (th13_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "Reimu,";
+            break;
+        case 1:
+            out += "Marisa,";
+            break;
+        case 2:
+            out += "Sanae,";
+            break;
+        case 3:
+            out += "Youmu,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0x74;
+    th13_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stage_count; i++) {
+        if(next_stage_offset + sizeof(th13_replay_stage_t) < flength) {
+            th13_replay_stage_t *stage = (th13_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th13_replay_stage_t));
+            next_stage_offset += stage->end_off + 0xc4;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].graze);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+}
+
+std::string th14csv(unsigned char *buffer, int flength) {
+        std::string out = "th14,";
+
+    if(flength < sizeof(th13_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th13decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th14_replay_t)) return "\n";
+    th14_replay_t *replay = (th14_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "ReimuA,";
+            break;
+        case 1:
+            out += "ReimuB,";
+            break;
+        case 2:
+            out += "MarisaA,";
+            break;
+        case 3:
+            out += "MarisaB,";
+            break;
+        case 4:
+            out += "SakuyaA,";
+            break;
+        case 5:
+            out += "SakuyaB,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0x94;
+    th14_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stage_count; i++) {
+        if(next_stage_offset + sizeof(th14_replay_stage_t) < flength) {
+            th14_replay_stage_t *stage = (th14_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th14_replay_stage_t));
+            next_stage_offset += stage->end_off + 0xdc;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].graze);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+}
+
+std::string th15csv(unsigned char *buffer, int flength) {
+        std::string out = "th15,";
+
+    if(flength < sizeof(th13_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th13decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th15_replay_t)) return "\n";
+    th15_replay_t *replay = (th15_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "Reimu,";
+            break;
+        case 1:
+            out += "Marisa,";
+            break;
+        case 2:
+            out += "Sanae,";
+            break;
+        case 3:
+            out += "Reisen,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0xa4;
+    th15_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stage_count; i++) {
+        if(next_stage_offset + sizeof(th15_replay_stage_t) < flength) {
+            th15_replay_stage_t *stage = (th15_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th15_replay_stage_t));
+            next_stage_offset += stage->end_off + 0x238;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].graze);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+}
+
+std::string th16csv(unsigned char *buffer, int flength) {
+        std::string out = "th16,";
+
+    if(flength < sizeof(th13_replay_header_t)) return "\n";
+
+    unsigned char **buf = &buffer;
+    flength = th13decode(buf, flength);
+    buffer = *buf;
+
+    if (flength < sizeof(th16_replay_t)) return "\n";
+    th16_replay_t *replay = (th16_replay_t*)buffer;
+
+    out += replay->name;
+    out += ",";
+    switch(replay->shot) {
+        case 0:
+            out += "Reimu ";
+            break;
+        case 1:
+            out += "Marisa ";
+            break;
+        case 2:
+            out += "Cirno ";
+            break;
+        case 3:
+            out += "Aya ";
+            break;
+        default:
+            out += "Unknown ";
+            break;
+    }
+
+    switch(replay->subseason) {
+        case 0:
+            out += "Spring,";
+            break;
+        case 1:
+            out += "Summer,";
+            break;
+        case 2:
+            out += "Autumn,";
+            break;
+        case 3:
+            out += "Winter,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+    switch(replay->difficulty) {
+        case 0:
+            out += "Easy,";
+            break;
+        case 1:
+            out += "Normal,";
+            break;
+        case 2:
+            out += "Hard,";
+            break;
+        case 3:
+            out += "Lunatic,";
+            break;
+        case 4:
+            out += "Extra,";
+            break;
+        case 5:
+            out += "Phantasm,";
+            break;
+        default:
+            out += "Unknown,";
+            break;
+    }
+
+    char score[16];
+    sprintf(score, "%u\0", (uint64_t)replay->score * 10);
+    out += score;
+    out += ",";
+
+    uint32_t next_stage_offset = 0xa0;
+    th16_replay_stage_t splits[9];
+    for(int i = 0; i < replay->stage_count; i++) {
+        if(next_stage_offset + sizeof(th16_replay_stage_t) < flength) {
+            th16_replay_stage_t *stage = (th16_replay_stage_t*)&buffer[next_stage_offset];
+            memcpy(&splits[i], stage, sizeof(th16_replay_stage_t));
+            next_stage_offset += stage->end_off + 0x2;
+        }
+    }
+
+    for(int i = 0; i < 9; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", (uint64_t)splits[i].score * 10);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].piv);
+            out += score;
+        }
+        out += ",";
+    }
+
+    for(int i = 0; i < 7; i++) {
+        if(i < replay->stage_count) {
+            sprintf(score, "%u\0", splits[i].graze);
+            out += score;
+        }
+        out += ",";
+    }
+
+    out += ",,,,,,,";   //  other 1-7
+
+    out += "\n";
+    free(buffer);
+    return out;
+}

@@ -64,10 +64,10 @@ int main(int args, char *argv[]) {
                 txt = th10csv(buffer, flength);
                 break;
             case 0x72313174:  //"t11r"
-                // txt = th11csv(buffer, flength);
+                txt = th11csv(buffer, flength);
                 break;
             case 0x72323174:  //"t12r"
-                // txt = th12csv(buffer, flength);
+                txt = th12csv(buffer, flength);
                 break;
             case 0x72383231:  //"128r"
                 break;
@@ -76,11 +76,11 @@ int main(int args, char *argv[]) {
                     if(flength > sizeof(th13_replay_header_t)) {
                         th13_replay_header_t *header = (th13_replay_header_t*)buffer;
                         if(flength > header->userdata_offset + 0x10) {
-                            const char id = buffer[header->userdata_offset + 0x10];
+                            unsigned char id = buffer[header->userdata_offset + 0x10];
                             if(id == 144) {
-                                // txt = th13csv(buffer, flength);
+                                txt = th13csv(buffer, flength);
                             } else {
-                                // txt = th14csv(buffer, flength);
+                                txt = th14csv(buffer, flength);
                             }
                         } else {
                             // txt = nullptr;
@@ -91,10 +91,10 @@ int main(int args, char *argv[]) {
                 }
                 break;
             case 0x72353174: 	//"t15r"
-                // txt = th15csv(buffer, flength);
+                txt = th15csv(buffer, flength);
                 break;
             case 0x72363174: 	//"t16r"
-                // txt = th16csv(buffer, flength);
+                txt = th16csv(buffer, flength);
                 break;
             case 0x72373174: 	//"t17r"
                 break;
@@ -118,8 +118,11 @@ int main(int args, char *argv[]) {
     fflush(out);
     fclose(out);
 
-    printf("\nPress enter to continue ...");
-    std::cin.get();
+    if(success != args - 1) {
+        printf("\nPress enter to continue ...");
+        std::cin.get();
+    }
+
 
     return 0;
 }
