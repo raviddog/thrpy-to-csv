@@ -97,8 +97,10 @@ int main(int args, char *argv[]) {
                 txt = th16csv(buffer, flength);
                 break;
             case 0x72373174: 	//"t17r"
+                txt = th17csv(buffer, flength);
                 break;
             case 0x72383174: 	//"t18r"
+                txt = th18csv(buffer, flength);
                 break;
             default:
                 break;

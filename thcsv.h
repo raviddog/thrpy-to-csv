@@ -11,6 +11,6 @@ std::string th13csv(unsigned char *buffer, int length);
 std::string th14csv(unsigned char *buffer, int length);
 std::string th15csv(unsigned char *buffer, int length);
 std::string th16csv(unsigned char *buffer, int length);
-// std::string th17csv(unsigned char *buffer, int length);
-// std::string th18csv(unsigned char *buffer, int length);
+std::string th17csv(unsigned char *buffer, int length);
+std::string th18csv(unsigned char *buffer, int length);
 // std::string th128csv(unsigned char *buffer, int length);
